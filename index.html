@@ -22,9 +22,8 @@ header{padding:15px;text-align:center;font-size:28px;background:#141414;}
 .login button{padding:10px 20px;background:#e50914;border:none;color:white;font-size:16px;border-radius:5px;cursor:pointer;}
 .input-wrapper{position:relative;display:flex;align-items:center;}
 .show-hide{position:absolute;right:10px;color:#e50914;cursor:pointer;}
-/* Fullscreen overlay */
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;justify-content:center;align-items:center;z-index:99999;flex-direction:column;}
-#overlay video,#overlay img{max-width:90%;max-height:80%;border-radius:10px;}
+#overlay video,#overlay img{max-width:90%;max-height:90%;border-radius:10px;}
 #overlay button{margin-top:20px;padding:10px 20px;background:#e50914;border:none;color:white;font-size:16px;border-radius:5px;cursor:pointer;}
 </style>
 </head>
@@ -42,7 +41,6 @@ header{padding:15px;text-align:center;font-size:28px;background:#141414;}
 <header>My Private Collections</header>
 <div id="collections"></div>
 
-<!-- Fullscreen overlay -->
 <div id="overlay">
 <video controls id="overlayVideo"></video>
 <img id="overlayImage" style="display:none;">
@@ -56,24 +54,31 @@ const appScriptURL="https://script.google.com/macros/s/AKfycbwRllr63cPuP6Juuv01l
 const enterBtn=document.getElementById("enterBtn");
 const passInput=document.getElementById("pass");
 const togglePass=document.getElementById("togglePass");
+const loginDiv=document.getElementById("login");
 const overlay=document.getElementById("overlay");
 const overlayVideo=document.getElementById("overlayVideo");
 const overlayImage=document.getElementById("overlayImage");
 
+// Show/hide password
 togglePass.addEventListener("click",()=>{
   if(passInput.type==="password"){
-    passInput.type="text";
-    togglePass.textContent="Hide";
+    passInput.type="text"; togglePass.textContent="Hide";
   }else{
-    passInput.type="password";
-    togglePass.textContent="Show";
+    passInput.type="password"; togglePass.textContent="Show";
   }
 });
+
+// Check if user already logged in
+if(localStorage.getItem("loggedIn") === "true"){
+  loginDiv.style.display="none";
+  loadCollections();
+}
 
 enterBtn.addEventListener("click",()=>{
   const input=passInput.value.trim();
   if(input===password){
-    document.getElementById("login").style.display="none";
+    loginDiv.style.display="none";
+    localStorage.setItem("loggedIn","true"); // Remember login
     loadCollections();
   } else{
     alert("Wrong Password");
@@ -102,9 +107,9 @@ function loadCollections(){
         const card=document.createElement("div");
         card.className="card";
 
-        // Show real thumbnail from Drive for video or image
+        // Use high quality: direct preview links for videos and images
         if(file.type==="video"){
-          card.innerHTML=`<img src="https://drive.google.com/thumbnail?id=${getFileId(file.link)}" alt="${file.name}"><div class="title">${file.name}</div>`;
+          card.innerHTML=`<img src="https://drive.google.com/uc?export=view&id=${getFileId(file.link)}" alt="${file.name}"><div class="title">${file.name}</div>`;
           card.addEventListener("click",()=>{
             overlayImage.style.display="none";
             overlayVideo.style.display="block";
@@ -140,7 +145,6 @@ function loadCollections(){
 }
 
 function getFileId(url){
-  // Extract file ID from Drive preview URL
   const match = url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
   return match ? match[1] : "";
 }
