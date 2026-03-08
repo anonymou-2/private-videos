@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Private Collections</title>
+<title>Private Collections</title>
 <style>
 body{margin:0;font-family:Arial;background:#0b0b0b;color:white;}
 header{padding:15px;text-align:center;font-size:24px;background:#141414;}
@@ -33,26 +33,28 @@ header{padding:15px;text-align:center;font-size:24px;background:#141414;}
 
 <script>
 const password="OnlyForMe@321"; // Your password
-const appScriptURL="https://script.google.com/macros/s/AKfycbwCw1RajaKd1JA8pST_wcS1x8wcs2NoRGAmDrjVYrYlhaJ4RtdgUpa--_YFKrV-UIek/exec";
+const appScriptURL="https://script.google.com/macros/s/AKfycbwzQwupyqbDeCvDZg25zdHzacwUiZxduVv1wZp2WA9J8sSFid9wfhAgxZS-K6aVPih4QA/exec";
 
-const enterBtn=document.getElementById("enterBtn");
-enterBtn.addEventListener("click",()=>checkPassword());
-
-function checkPassword(){
+document.getElementById("enterBtn").addEventListener("click",()=>{
   const input=document.getElementById("pass").value.trim();
   if(input===password){
     document.getElementById("login").style.display="none";
     loadCollections();
-  }else{
+  } else{
     alert("Wrong Password");
   }
-}
+});
 
 function loadCollections(){
   fetch(appScriptURL)
   .then(res=>res.json())
   .then(data=>{
+    if(data.error){
+      alert("Apps Script Error: "+data.error);
+      return;
+    }
     const container=document.getElementById("collections");
+    container.innerHTML="";
     data.forEach(folder=>{
       const folderDiv=document.createElement("div");
       folderDiv.className="folder";
@@ -64,20 +66,21 @@ function loadCollections(){
         card.className="card";
         if(file.type==="video"){
           card.innerHTML=`<video controls src="${file.link}"></video><div class="title">${file.name}</div>`;
-        }else{
+        } else{
           card.innerHTML=`<img src="${file.link}"><div class="title">${file.name}</div>`;
         }
         grid.appendChild(card);
       });
       folderDiv.appendChild(grid);
       container.appendChild(folderDiv);
-    })
+    });
   })
   .catch(err=>{
-    console.error("Error loading collections:", err);
-    alert("Failed to load collections. Check Apps Script URL and Drive permissions.");
+    console.error("Failed to load collections:", err);
+    alert("Failed to load collections. Check Apps Script URL and Drive folder permissions.");
   });
 }
 </script>
+
 </body>
 </html>
