@@ -6,25 +6,31 @@
 <title>Private Collections</title>
 <style>
 body{margin:0;font-family:Arial;background:#0b0b0b;color:white;}
-header{padding:15px;text-align:center;font-size:24px;background:#141414;}
+header{padding:15px;text-align:center;font-size:26px;background:#141414;}
 #collections{padding:20px;}
-.folder{margin-bottom:30px;}
-.folder h2{border-bottom:2px solid #ff0033;padding-bottom:5px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:10px;}
+.folder{margin-bottom:20px;border:1px solid #333;border-radius:10px;overflow:hidden;}
+.folder-header{padding:12px;background:#222;cursor:pointer;font-weight:bold;font-size:18px;display:flex;justify-content:space-between;align-items:center;}
+.folder-header:hover{background:#333;}
+.grid{display:none;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;padding:10px;}
 .card{background:#1c1c1c;border-radius:10px;overflow:hidden;transition:0.3s;}
 .card:hover{transform:scale(1.03);}
-.card video, .card img{width:100%;display:block;}
+.card video, .card iframe, .card img{width:100%;display:block;}
 .title{text-align:center;padding:5px;font-size:14px;}
-.login{position:fixed;top:0;left:0;width:100%;height:100%;background:black;display:flex;justify-content:center;align-items:center;flex-direction:column;}
-.login input{padding:10px;font-size:16px;margin:10px;border-radius:5px;border:none;}
+.login{position:fixed;top:0;left:0;width:100%;height:100%;background:black;display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:9999;}
+.login input{padding:10px;font-size:16px;margin:10px;border-radius:5px;border:none;width:250px;}
 .login button{padding:10px 20px;background:#e50914;border:none;color:white;font-size:16px;border-radius:5px;cursor:pointer;}
+.show-hide{color:#e50914;cursor:pointer;margin-left:-40px;position:absolute;}
+.input-wrapper{position:relative;display:flex;align-items:center;}
 </style>
 </head>
 <body>
 
 <div class="login" id="login">
 <h2>Enter Password</h2>
+<div class="input-wrapper">
 <input type="password" id="pass">
+<span id="togglePass" class="show-hide">Show</span>
+</div>
 <button id="enterBtn">Enter</button>
 </div>
 
@@ -32,11 +38,25 @@ header{padding:15px;text-align:center;font-size:24px;background:#141414;}
 <div id="collections"></div>
 
 <script>
-const password="OnlyForMe@321"; // Your password
-const appScriptURL="https://script.google.com/macros/s/AKfycbwzQwupyqbDeCvDZg25zdHzacwUiZxduVv1wZp2WA9J8sSFid9wfhAgxZS-K6aVPih4QA/exec";
+const password="Nisal@321"; // Updated password
+const appScriptURL="https://script.google.com/macros/s/AKfycbwRllr63cPuP6Juuv01lJfb-BwfgJ21ftbR79WWb27M9tjB78ZtgxqenB2lma_lO-4K/exec";
 
-document.getElementById("enterBtn").addEventListener("click",()=>{
-  const input=document.getElementById("pass").value.trim();
+const enterBtn=document.getElementById("enterBtn");
+const passInput=document.getElementById("pass");
+const togglePass=document.getElementById("togglePass");
+
+togglePass.addEventListener("click",()=>{
+  if(passInput.type==="password"){
+    passInput.type="text";
+    togglePass.textContent="Hide";
+  }else{
+    passInput.type="password";
+    togglePass.textContent="Show";
+  }
+});
+
+enterBtn.addEventListener("click",()=>{
+  const input=passInput.value.trim();
   if(input===password){
     document.getElementById("login").style.display="none";
     loadCollections();
@@ -49,28 +69,39 @@ function loadCollections(){
   fetch(appScriptURL)
   .then(res=>res.json())
   .then(data=>{
-    if(data.error){
-      alert("Apps Script Error: "+data.error);
-      return;
-    }
+    if(data.error){ alert("Apps Script Error: "+data.error); return; }
     const container=document.getElementById("collections");
     container.innerHTML="";
     data.forEach(folder=>{
       const folderDiv=document.createElement("div");
       folderDiv.className="folder";
-      folderDiv.innerHTML=`<h2>${folder.folder}</h2>`;
+
+      const header=document.createElement("div");
+      header.className="folder-header";
+      header.innerHTML=`${folder.folder} <span>${folder.files.length} items</span>`;
+      
       const grid=document.createElement("div");
       grid.className="grid";
+
       folder.files.forEach(file=>{
         const card=document.createElement("div");
         card.className="card";
+
         if(file.type==="video"){
-          card.innerHTML=`<video controls src="${file.link}"></video><div class="title">${file.name}</div>`;
+          card.innerHTML=`<iframe src="${file.link}" frameborder="0" allowfullscreen height="200"></iframe>
+          <div class="title">${file.name}</div>`;
         } else{
           card.innerHTML=`<img src="${file.link}"><div class="title">${file.name}</div>`;
         }
+
         grid.appendChild(card);
       });
+
+      header.addEventListener("click",()=>{
+        grid.style.display = grid.style.display==="grid" ? "none" : "grid";
+      });
+
+      folderDiv.appendChild(header);
       folderDiv.appendChild(grid);
       container.appendChild(folderDiv);
     });
@@ -81,6 +112,5 @@ function loadCollections(){
   });
 }
 </script>
-
 </body>
 </html>
