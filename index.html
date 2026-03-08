@@ -5,22 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Private Collections</title>
 <style>
-body{margin:0;font-family:Arial;background:#0b0b0b;color:white;}
-header{padding:15px;text-align:center;font-size:26px;background:#141414;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial,sans-serif;background:#0b0b0b;color:white;}
+header{padding:15px;text-align:center;font-size:28px;background:#141414;}
 #collections{padding:20px;}
-.folder{margin-bottom:20px;border:1px solid #333;border-radius:10px;overflow:hidden;}
-.folder-header{padding:12px;background:#222;cursor:pointer;font-weight:bold;font-size:18px;display:flex;justify-content:space-between;align-items:center;}
-.folder-header:hover{background:#333;}
-.grid{display:none;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;padding:10px;}
-.card{background:#1c1c1c;border-radius:10px;overflow:hidden;transition:0.3s;}
-.card:hover{transform:scale(1.03);}
-.card video, .card iframe, .card img{width:100%;display:block;}
-.title{text-align:center;padding:5px;font-size:14px;}
+.folder{margin-bottom:30px;}
+.folder-title{font-size:20px;font-weight:bold;padding:10px 0;border-bottom:2px solid #e50914;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.folder-title:hover{color:#e50914;}
+.grid{display:none;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-top:10px;}
+.card{background:#1c1c1c;border-radius:10px;overflow:hidden;cursor:pointer;transition:0.3s;}
+.card:hover{transform:scale(1.05);}
+.card img{width:100%;height:150px;object-fit:cover;}
+.title{text-align:center;padding:5px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .login{position:fixed;top:0;left:0;width:100%;height:100%;background:black;display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:9999;}
 .login input{padding:10px;font-size:16px;margin:10px;border-radius:5px;border:none;width:250px;}
 .login button{padding:10px 20px;background:#e50914;border:none;color:white;font-size:16px;border-radius:5px;cursor:pointer;}
-.show-hide{color:#e50914;cursor:pointer;margin-left:-40px;position:absolute;}
 .input-wrapper{position:relative;display:flex;align-items:center;}
+.show-hide{position:absolute;right:10px;color:#e50914;cursor:pointer;}
+/* Fullscreen overlay */
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;justify-content:center;align-items:center;z-index:99999;flex-direction:column;}
+#overlay video,#overlay img{max-width:90%;max-height:80%;border-radius:10px;}
+#overlay button{margin-top:20px;padding:10px 20px;background:#e50914;border:none;color:white;font-size:16px;border-radius:5px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -37,13 +42,23 @@ header{padding:15px;text-align:center;font-size:26px;background:#141414;}
 <header>My Private Collections</header>
 <div id="collections"></div>
 
+<!-- Fullscreen overlay -->
+<div id="overlay">
+<video controls id="overlayVideo"></video>
+<img id="overlayImage" style="display:none;">
+<button onclick="closeOverlay()">Close</button>
+</div>
+
 <script>
-const password="Nisal@321"; // Updated password
+const password="Nisal@321";
 const appScriptURL="https://script.google.com/macros/s/AKfycbwRllr63cPuP6Juuv01lJfb-BwfgJ21ftbR79WWb27M9tjB78ZtgxqenB2lma_lO-4K/exec";
 
 const enterBtn=document.getElementById("enterBtn");
 const passInput=document.getElementById("pass");
 const togglePass=document.getElementById("togglePass");
+const overlay=document.getElementById("overlay");
+const overlayVideo=document.getElementById("overlayVideo");
+const overlayImage=document.getElementById("overlayImage");
 
 togglePass.addEventListener("click",()=>{
   if(passInput.type==="password"){
@@ -76,10 +91,10 @@ function loadCollections(){
       const folderDiv=document.createElement("div");
       folderDiv.className="folder";
 
-      const header=document.createElement("div");
-      header.className="folder-header";
-      header.innerHTML=`${folder.folder} <span>${folder.files.length} items</span>`;
-      
+      const folderTitle=document.createElement("div");
+      folderTitle.className="folder-title";
+      folderTitle.innerHTML=`${folder.folder} <span>${folder.files.length} items</span>`;
+
       const grid=document.createElement("div");
       grid.className="grid";
 
@@ -87,21 +102,33 @@ function loadCollections(){
         const card=document.createElement("div");
         card.className="card";
 
+        // Show real thumbnail from Drive for video or image
         if(file.type==="video"){
-          card.innerHTML=`<iframe src="${file.link}" frameborder="0" allowfullscreen height="200"></iframe>
-          <div class="title">${file.name}</div>`;
+          card.innerHTML=`<img src="https://drive.google.com/thumbnail?id=${getFileId(file.link)}" alt="${file.name}"><div class="title">${file.name}</div>`;
+          card.addEventListener("click",()=>{
+            overlayImage.style.display="none";
+            overlayVideo.style.display="block";
+            overlayVideo.src=file.link;
+            overlay.style.display="flex";
+          });
         } else{
-          card.innerHTML=`<img src="${file.link}"><div class="title">${file.name}</div>`;
+          card.innerHTML=`<img src="${file.link}" alt="${file.name}"><div class="title">${file.name}</div>`;
+          card.addEventListener("click",()=>{
+            overlayVideo.style.display="none";
+            overlayImage.style.display="block";
+            overlayImage.src=file.link;
+            overlay.style.display="flex";
+          });
         }
 
         grid.appendChild(card);
       });
 
-      header.addEventListener("click",()=>{
+      folderTitle.addEventListener("click",()=>{
         grid.style.display = grid.style.display==="grid" ? "none" : "grid";
       });
 
-      folderDiv.appendChild(header);
+      folderDiv.appendChild(folderTitle);
       folderDiv.appendChild(grid);
       container.appendChild(folderDiv);
     });
@@ -111,6 +138,20 @@ function loadCollections(){
     alert("Failed to load collections. Check Apps Script URL and Drive folder permissions.");
   });
 }
+
+function getFileId(url){
+  // Extract file ID from Drive preview URL
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+  return match ? match[1] : "";
+}
+
+function closeOverlay(){
+  overlayVideo.pause();
+  overlayVideo.src="";
+  overlayImage.src="";
+  overlay.style.display="none";
+}
 </script>
+
 </body>
 </html>
