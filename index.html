@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Private Video Vault</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#0f0f0f;
+color:white;
+}
+
+header{
+background:#111;
+padding:15px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+letter-spacing:1px;
+}
+
+.container{
+padding:20px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+}
+
+.card{
+background:#1a1a1a;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 0 10px rgba(0,0,0,0.5);
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.03);
+}
+
+.card video{
+width:100%;
+display:block;
+}
+
+.title{
+padding:10px;
+font-size:14px;
+text-align:center;
+}
+
+footer{
+text-align:center;
+padding:15px;
+font-size:12px;
+opacity:0.6;
+}
+
+.login{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+}
+
+.login input{
+padding:10px;
+font-size:16px;
+border:none;
+border-radius:5px;
+margin:10px;
+}
+
+.login button{
+padding:10px 20px;
+font-size:16px;
+border:none;
+background:#ff0033;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="login" id="login">
+
+<h2>Private Access</h2>
+
+<input type="password" id="pass" placeholder="Enter password">
+
+<button onclick="check()">Enter</button>
+
+</div>
+
+<header>
+
+PRIVATE VIDEO VAULT
+
+</header>
+
+<div class="container">
+
+<div class="card">
+<video controls>
+<source src="VIDEO_LINK_1" type="video/mp4">
+</video>
+<div class="title">Video 1</div>
+</div>
+
+<div class="card">
+<video controls>
+<source src="VIDEO_LINK_2" type="video/mp4">
+</video>
+<div class="title">Video 2</div>
+</div>
+
+<div class="card">
+<video controls>
+<source src="VIDEO_LINK_3" type="video/mp4">
+</video>
+<div class="title">Video 3</div>
+</div>
+
+</div>
+
+<footer>
+
+Private Streaming Page
+
+</footer>
+
+<script>
+
+var password="1234"
+
+function check(){
+
+var input=document.getElementById("pass").value
+
+if(input===password){
+
+document.getElementById("login").style.display="none"
+
+}else{
+
+alert("Wrong Password")
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
