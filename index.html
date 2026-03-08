@@ -32,7 +32,7 @@ header{padding:15px;text-align:center;font-size:24px;background:#141414;}
 <div id="collections"></div>
 
 <script>
-var password="1234"; // Change your password
+var password="OnlyForMe@321"; // Your password
 
 function check(){
   var input=document.getElementById("pass").value;
@@ -45,7 +45,7 @@ function check(){
 }
 
 function loadCollections(){
-  fetch("YOUR_APPS_SCRIPT_URL") // Replace with your Apps Script Web App URL
+  fetch("https://script.google.com/macros/s/AKfycbwCw1RajaKd1JA8pST_wcS1x8wcs2NoRGAmDrjVYrYlhaJ4RtdgUpa--_YFKrV-UIek/exec")
   .then(res=>res.json())
   .then(data=>{
     var container=document.getElementById("collections");
