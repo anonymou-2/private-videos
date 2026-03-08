@@ -25,42 +25,46 @@ header{padding:15px;text-align:center;font-size:24px;background:#141414;}
 <div class="login" id="login">
 <h2>Enter Password</h2>
 <input type="password" id="pass">
-<button onclick="check()">Enter</button>
+<button id="enterBtn">Enter</button>
 </div>
 
 <header>My Private Collections</header>
 <div id="collections"></div>
 
 <script>
-var password="OnlyForMe@321"; // Your password
+const password="OnlyForMe@321"; // Your password
+const appScriptURL="https://script.google.com/macros/s/AKfycbwCw1RajaKd1JA8pST_wcS1x8wcs2NoRGAmDrjVYrYlhaJ4RtdgUpa--_YFKrV-UIek/exec";
 
-function check(){
-  var input=document.getElementById("pass").value;
+const enterBtn=document.getElementById("enterBtn");
+enterBtn.addEventListener("click",()=>checkPassword());
+
+function checkPassword(){
+  const input=document.getElementById("pass").value.trim();
   if(input===password){
     document.getElementById("login").style.display="none";
     loadCollections();
-  } else{
+  }else{
     alert("Wrong Password");
   }
 }
 
 function loadCollections(){
-  fetch("https://script.google.com/macros/s/AKfycbwCw1RajaKd1JA8pST_wcS1x8wcs2NoRGAmDrjVYrYlhaJ4RtdgUpa--_YFKrV-UIek/exec")
+  fetch(appScriptURL)
   .then(res=>res.json())
   .then(data=>{
-    var container=document.getElementById("collections");
+    const container=document.getElementById("collections");
     data.forEach(folder=>{
-      var folderDiv=document.createElement("div");
+      const folderDiv=document.createElement("div");
       folderDiv.className="folder";
       folderDiv.innerHTML=`<h2>${folder.folder}</h2>`;
-      var grid=document.createElement("div");
+      const grid=document.createElement("div");
       grid.className="grid";
       folder.files.forEach(file=>{
-        var card=document.createElement("div");
+        const card=document.createElement("div");
         card.className="card";
         if(file.type==="video"){
           card.innerHTML=`<video controls src="${file.link}"></video><div class="title">${file.name}</div>`;
-        } else {
+        }else{
           card.innerHTML=`<img src="${file.link}"><div class="title">${file.name}</div>`;
         }
         grid.appendChild(card);
@@ -69,6 +73,10 @@ function loadCollections(){
       container.appendChild(folderDiv);
     })
   })
+  .catch(err=>{
+    console.error("Error loading collections:", err);
+    alert("Failed to load collections. Check Apps Script URL and Drive permissions.");
+  });
 }
 </script>
 </body>
