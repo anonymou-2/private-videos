@@ -68,7 +68,7 @@ togglePass.addEventListener("click",()=>{
   }
 });
 
-// Check if user already logged in
+// Check persistent login
 if(localStorage.getItem("loggedIn") === "true"){
   loginDiv.style.display="none";
   loadCollections();
@@ -78,12 +78,21 @@ enterBtn.addEventListener("click",()=>{
   const input=passInput.value.trim();
   if(input===password){
     loginDiv.style.display="none";
-    localStorage.setItem("loggedIn","true"); // Remember login
+    localStorage.setItem("loggedIn","true");
     loadCollections();
   } else{
     alert("Wrong Password");
   }
 });
+
+// Convert Google Drive link to direct stream link
+function getDriveLink(fileLink, type){
+  const match = fileLink.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+  if(!match) return fileLink;
+  const id = match[1];
+  if(type==="video") return `https://drive.google.com/uc?export=download&id=${id}`;
+  else return `https://drive.google.com/uc?export=view&id=${id}`;
+}
 
 function loadCollections(){
   fetch(appScriptURL)
@@ -107,24 +116,27 @@ function loadCollections(){
         const card=document.createElement("div");
         card.className="card";
 
-        // Use high quality: direct preview links for videos and images
+        // Full-quality thumbnail for card
+        let thumbLink = getDriveLink(file.link, "image");
         if(file.type==="video"){
-          card.innerHTML=`<img src="https://drive.google.com/uc?export=view&id=${getFileId(file.link)}" alt="${file.name}"><div class="title">${file.name}</div>`;
-          card.addEventListener("click",()=>{
+          // For videos, just use the same link (can improve later with actual thumbnail API)
+          thumbLink = `https://drive.google.com/uc?export=view&id=${file.link.match(/\/d\/([a-zA-Z0-9_-]+)\//)[1]}`;
+        }
+
+        card.innerHTML=`<img src="${thumbLink}" alt="${file.name}"><div class="title">${file.name}</div>`;
+
+        card.addEventListener("click",()=>{
+          if(file.type==="video"){
             overlayImage.style.display="none";
             overlayVideo.style.display="block";
-            overlayVideo.src=file.link;
-            overlay.style.display="flex";
-          });
-        } else{
-          card.innerHTML=`<img src="${file.link}" alt="${file.name}"><div class="title">${file.name}</div>`;
-          card.addEventListener("click",()=>{
+            overlayVideo.src = getDriveLink(file.link,"video");
+          } else{
             overlayVideo.style.display="none";
             overlayImage.style.display="block";
-            overlayImage.src=file.link;
-            overlay.style.display="flex";
-          });
-        }
+            overlayImage.src = getDriveLink(file.link,"image");
+          }
+          overlay.style.display="flex";
+        });
 
         grid.appendChild(card);
       });
@@ -144,11 +156,6 @@ function loadCollections(){
   });
 }
 
-function getFileId(url){
-  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
-  return match ? match[1] : "";
-}
-
 function closeOverlay(){
   overlayVideo.pause();
   overlayVideo.src="";
@@ -156,6 +163,5 @@ function closeOverlay(){
   overlay.style.display="none";
 }
 </script>
-
 </body>
 </html>
