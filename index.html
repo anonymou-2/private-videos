@@ -1,93 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Media Library</title>
+<title>Nisal Media Library</title>
+
 <style>
-body { font-family: Arial, sans-serif; background:#111; color:#fff; padding:20px; }
-h1 { text-align:center; color:#1E90FF; margin-bottom:30px; }
-h2 { border-bottom:1px solid #555; margin-top:25px; }
-a { color:#1E90FF; text-decoration:none; display:block; margin:5px 0; }
-a:hover { text-decoration:underline; }
-.container { max-width:900px; margin:auto; }
-.grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap:15px; margin-top:15px; }
-.item { text-align:center; }
-.item img { width:100%; height:auto; border-radius:8px; cursor:pointer; }
-.item p { margin-top:5px; color:#1E90FF; font-size:14px; word-wrap:break-word; }
-</style>
-</head>
-<body>
-
-<div class="container">
-<h1>My Media Library</h1>
-<div id="media"></div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/megajs@0.7.0/megajs.min.js"></script>
-<script>
-// ---------------- CONFIG ----------------
-const MEGA_FOLDER_LINK = "https://mega.nz/folder/vsxBGIyS#M5s0715t2LNRFnZCo7jBBw";
-// ---------------------------------------
-
-async function createMediaSite() {
-    const mediaDiv = document.getElementById("media");
-
-    // Initialize MEGA folder
-    const folder = new mega.File({link: MEGA_FOLDER_LINK});
-
-    folder.loadAttributes(async function() {
-        const files = folder.children;
-
-        for (let name in files) {
-            const f = files[name];
-
-            // Subfolder (category)
-            if (f.directory) {
-                const h2 = document.createElement("h2");
-                h2.innerText = f.name;
-                mediaDiv.appendChild(h2);
-
-                const grid = document.createElement("div");
-                grid.className = "grid";
-
-                const subFiles = f.children;
-                for (let sf in subFiles) {
-                    const file = subFiles[sf];
-                    const a = document.createElement("a");
-                    const fileLink = await file.link();
-                    a.href = fileLink;
-                    a.target = "_blank";
-
-                    const div = document.createElement("div");
-                    div.className = "item";
-
-                    const img = document.createElement("img");
-                    img.src = fileLink; // Using file itself as thumbnail
-                    div.appendChild(img);
-
-                    const p = document.createElement("p");
-                    p.innerText = file.name;
-                    div.appendChild(p);
-
-                    a.appendChild(div);
-                    grid.appendChild(a);
-                }
-                mediaDiv.appendChild(grid);
-            } else {
-                // File directly in main folder
-                const a = document.createElement("a");
-                a.href = await f.link();
-                a.target = "_blank";
-                a.innerText = f.name;
-                mediaDiv.appendChild(a);
-            }
-        }
-    });
+body{
+background:#0f0f0f;
+color:white;
+font-family:Arial;
+text-align:center;
 }
 
-createMediaSite();
-</script>
+h1{
+color:#00bfff;
+margin-top:40px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:20px;
+padding:40px;
+}
+
+.card{
+background:#1c1c1c;
+padding:30px;
+border-radius:12px;
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.05);
+background:#2a2a2a;
+}
+
+a{
+color:#00bfff;
+font-size:18px;
+text-decoration:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Nisal Media Library</h1>
+
+<div class="grid">
+
+<div class="card">
+<a href="https://mega.nz/folder/vsxBGIyS#M5s0715t2LNRFnZCo7jBBw" target="_blank">
+Open Media Library
+</a>
+</div>
+
+</div>
 
 </body>
 </html>
